@@ -1,6 +1,9 @@
 package com.mycompany.mavenproject3;
 
 import javax.swing.*;
+
+import com.mycompany.mavenproject3.Mavenproject3.BannerPanel;
+
 import java.awt.*;
 
 public class Mavenproject3 extends JFrame implements Runnable {
@@ -10,8 +13,12 @@ public class Mavenproject3 extends JFrame implements Runnable {
     private BannerPanel bannerPanel;
     private JButton addProductButton;
 
-    public Mavenproject3(String text) {
-        this.text = text;
+    public Mavenproject3() {
+
+        ProductForm form = new ProductForm();
+        String banner = form.getProductBannerText();
+
+        this.text = banner;
         setTitle("WK. STI Chill");
         setSize(600, 150);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -29,7 +36,8 @@ public class Mavenproject3 extends JFrame implements Runnable {
         add(bottomPanel, BorderLayout.SOUTH);
         
         addProductButton.addActionListener(e -> {
-            new ProductForm().setVisible(true);
+        form.setVisible(true);
+        updateBannerText(form.getProductBannerText());
         });
 
         setVisible(true);
@@ -42,7 +50,7 @@ public class Mavenproject3 extends JFrame implements Runnable {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-            g.setColor(Color.RED);
+            g.setColor(Color.BLACK);
             g.setFont(new Font("Arial", Font.BOLD, 18));
             g.drawString(text, x, getHeight() / 2);
         }
@@ -52,7 +60,7 @@ public class Mavenproject3 extends JFrame implements Runnable {
     public void run() {
         width = getWidth();
         while (true) {
-            x += 5;
+            x -= 5;
             if (x > width) {
                 x = -getFontMetrics(new Font("Arial", Font.BOLD, 18)).stringWidth(text);
             }
@@ -65,7 +73,12 @@ public class Mavenproject3 extends JFrame implements Runnable {
         }
     }
 
+    public void updateBannerText(String newText) {
+        this.text = newText;
+        x = -getFontMetrics(new Font("Arial", Font.BOLD, 18)).stringWidth(newText);
+    }
+
     public static void main(String[] args) {
-        new Mavenproject3("Menu yang tersedia: Americano | Pandan Latte | Aren Latte | Matcha Frappucino | Jus Apel");
+        new Mavenproject3();
     }
 }

@@ -24,11 +24,16 @@ public class ProductForm extends JFrame {
     private JTextField priceField;
     private JTextField stockField;
     private JButton saveButton;
+    private List<Product> products;
 
     public ProductForm() {
-        List<Product> products = new ArrayList<>();
+
+        products = new ArrayList<>();
         products.add(new Product(1, "P001", "Americano", "Coffee", 18000, 10));
         products.add(new Product(2, "P002", "Pandan Latte", "Coffee", 15000, 8));
+        products.add(new Product(3, "P003", "Aren Latte", "Coffee", 17000, 5));
+        products.add(new Product(4, "P004", "Matcha Frappucino", "Coffee", 23000, 12));
+        products.add(new Product(5, "P005", "Jus Apel", "Juice", 22000, 9));
         
         setTitle("WK. Cuan | Stok Barang");
         setSize(600, 450);
@@ -62,14 +67,27 @@ public class ProductForm extends JFrame {
         
         tableModel = new DefaultTableModel(new String[]{"Kode", "Nama", "Kategori", "Harga Jual", "Stok"}, 0);
         drinkTable = new JTable(tableModel);
+        getContentPane().add(new JScrollPane(drinkTable), BorderLayout.CENTER);
+
         loadProductData(products);
     }
 
     private void loadProductData(List<Product> productList) {
+        tableModel.setRowCount(0);
         for (Product product : productList) {
             tableModel.addRow(new Object[]{
                 product.getCode(), product.getName(), product.getCategory(), product.getPrice(), product.getStock()
             });
         }
+    }
+
+    public String getProductBannerText() {
+        if (products.isEmpty()) return "Menu tidak tersedia";
+        StringBuilder sb = new StringBuilder("Menu yang tersedia: ");
+        for (int i = 0; i < products.size(); i++) {
+            sb.append(products.get(i).getName());
+            if (i < products.size() - 1) sb.append(" | ");
+        }
+        return sb.toString();
     }
 }
