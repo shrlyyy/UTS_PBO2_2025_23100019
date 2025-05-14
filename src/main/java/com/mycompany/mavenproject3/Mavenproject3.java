@@ -1,9 +1,6 @@
 package com.mycompany.mavenproject3;
 
 import javax.swing.*;
-
-import com.mycompany.mavenproject3.Mavenproject3.BannerPanel;
-
 import java.awt.*;
 
 public class Mavenproject3 extends JFrame implements Runnable {

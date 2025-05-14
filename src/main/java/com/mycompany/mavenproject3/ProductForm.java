@@ -24,10 +24,12 @@ public class ProductForm extends JFrame {
     private JTextField priceField;
     private JTextField stockField;
     private JButton saveButton;
+    private JButton deleteButton;
     private List<Product> products;
+    private boolean isEditing = false;
+    private int editingIndex = -1;
 
     public ProductForm() {
-
         products = new ArrayList<>();
         products.add(new Product(1, "P001", "Americano", "Coffee", 18000, 10));
         products.add(new Product(2, "P002", "Pandan Latte", "Coffee", 15000, 8));
@@ -41,7 +43,9 @@ public class ProductForm extends JFrame {
         setLocationRelativeTo(null);
         
         // Panel form pemesanan
-        JPanel formPanel = new JPanel();
+        JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         formPanel.add(new JLabel("Kode Barang"));
         codeField = new JTextField();
         formPanel.add(codeField);
@@ -62,15 +66,101 @@ public class ProductForm extends JFrame {
         stockField = new JTextField();
         formPanel.add(stockField);
         
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         saveButton = new JButton("Simpan");
-        formPanel.add(saveButton);
+        deleteButton = new JButton("Hapus");
+
+        buttonPanel.add(saveButton);
+        buttonPanel.add(deleteButton);
         
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(formPanel, BorderLayout.CENTER);
+        topPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        getContentPane().add(topPanel, BorderLayout.NORTH);
+
         tableModel = new DefaultTableModel(new String[]{"Kode", "Nama", "Kategori", "Harga Jual", "Stok"}, 0);
         drinkTable = new JTable(tableModel);
         getContentPane().add(new JScrollPane(drinkTable), BorderLayout.CENTER);
 
         loadProductData(products);
+
+        saveButton.addActionListener(e -> saveProduct());
+
+        deleteButton.addActionListener(e -> {
+            int selectedRow = drinkTable.getSelectedRow();
+            if (selectedRow != -1) {
+                products.remove(selectedRow);
+                loadProductData(products);
+                clearFields();
+                isEditing = false;
+                editingIndex = -1;
+            } else {
+                JOptionPane.showMessageDialog(this, "Pilih produk untuk menghapus.");
+            }
+        });
+
+        drinkTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = drinkTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    Product product = products.get(selectedRow);
+                    codeField.setText(product.getCode());
+                    nameField.setText(product.getName());
+                    categoryField.setSelectedItem(product.getCategory());
+                    priceField.setText(String.valueOf(product.getPrice()));
+                    stockField.setText(String.valueOf(product.getStock()));
+                    
+                    editingIndex = selectedRow;
+                    isEditing = true;
+                } else {
+                    clearFields();
+                    isEditing = false;
+                }
+            }
+        });
     }
+    
+        private void saveProduct() {
+            try {
+                String code = codeField.getText();
+                String name = nameField.getText();
+                String category = (String) categoryField.getSelectedItem();
+                double price = Double.parseDouble(priceField.getText());
+                int stock = Integer.parseInt(stockField.getText());
+        
+                if (isEditing && editingIndex != -1) {
+                    // Mode edit
+                    Product existing = products.get(editingIndex);
+                    existing.setCode(code);
+                    existing.setName(name);
+                    existing.setCategory(category);
+                    existing.setPrice(price);
+                    existing.setStock(stock);
+                    
+                    isEditing = false;
+                    editingIndex = -1;
+                } else {
+                    // Mode tambah
+                    int id = products.size() + 1;
+                    Product newProduct = new Product(id, code, name, category, price, stock);
+                    products.add(newProduct);
+                }
+        
+                loadProductData(products);
+                clearFields();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Input tidak valid!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    
+        private void clearFields() {
+            codeField.setText("");
+            nameField.setText("");
+            priceField.setText("");
+            stockField.setText("");
+            categoryField.setSelectedIndex(0);
+        }
 
     private void loadProductData(List<Product> productList) {
         tableModel.setRowCount(0);
