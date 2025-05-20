@@ -13,9 +13,8 @@ public class Mavenproject3 extends JFrame implements Runnable {
     public Mavenproject3() {
 
         ProductForm form = new ProductForm();
-        String banner = form.getProductBannerText();
+        this.text = form.getProductBannerText();
 
-        this.text = banner;
         setTitle("WK. STI Chill");
         setSize(600, 150);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -31,7 +30,13 @@ public class Mavenproject3 extends JFrame implements Runnable {
         addProductButton = new JButton("Kelola Produk");
         bottomPanel.add(addProductButton);
         add(bottomPanel, BorderLayout.SOUTH);
-        
+
+        form.setProductChangeListener(() -> {
+            SwingUtilities.invokeLater(() -> {
+                updateBannerText(form.getProductBannerText());
+            });
+        });
+    
         addProductButton.addActionListener(e -> {
         form.setVisible(true);
         updateBannerText(form.getProductBannerText());
@@ -56,10 +61,11 @@ public class Mavenproject3 extends JFrame implements Runnable {
     @Override
     public void run() {
         width = getWidth();
+        x = width;
         while (true) {
             x -= 5;
-            if (x > width) {
-                x = -getFontMetrics(new Font("Arial", Font.BOLD, 18)).stringWidth(text);
+            if (x + bannerPanel.getFontMetrics(new Font("Arial", Font.BOLD, 18)).stringWidth(text) < 0) {
+                x = width;
             }
             bannerPanel.repaint();
             try {
@@ -72,7 +78,7 @@ public class Mavenproject3 extends JFrame implements Runnable {
 
     public void updateBannerText(String newText) {
         this.text = newText;
-        x = -getFontMetrics(new Font("Arial", Font.BOLD, 18)).stringWidth(newText);
+        x = -bannerPanel.getFontMetrics(new Font("Arial", Font.BOLD, 18)).stringWidth(newText);
     }
 
     public static void main(String[] args) {

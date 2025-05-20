@@ -29,6 +29,15 @@ public class ProductForm extends JFrame {
     private boolean isEditing = false;
     private int editingIndex = -1;
 
+    public interface ProductChangeListener {
+        void onProductsChanged();
+    }
+    private ProductChangeListener listener;
+
+    public void setProductChangeListener(ProductChangeListener listener) {
+        this.listener = listener;
+    }
+
     public ProductForm() {
         products = new ArrayList<>();
         products.add(new Product(1, "P001", "Americano", "Coffee", 18000, 10));
@@ -92,6 +101,7 @@ public class ProductForm extends JFrame {
             if (selectedRow != -1) {
                 products.remove(selectedRow);
                 loadProductData(products);
+                if (listener != null) listener.onProductsChanged();
                 clearFields();
                 isEditing = false;
                 editingIndex = -1;
@@ -148,6 +158,7 @@ public class ProductForm extends JFrame {
                 }
         
                 loadProductData(products);
+                if (listener != null) listener.onProductsChanged();
                 clearFields();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Input tidak valid!", "Error", JOptionPane.ERROR_MESSAGE);
